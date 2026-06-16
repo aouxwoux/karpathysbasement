@@ -720,6 +720,7 @@ def create_agent_bot(agent_key, controller_key, bots):
             or available_agent_keys
         )
         tone = get_channel_tone(message.channel.id)
+        student_context = build_student_context(message)
 
         if addressed_agent_keys:
             print(f"Direct mention targets: {', '.join(sorted(addressed_agent_keys))}")
