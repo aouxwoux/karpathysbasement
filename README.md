@@ -1,14 +1,19 @@
 # Karpathy's Basement
 
-A Discord room where simulated AI-research personas argue, react, and teach like a messy little research group chat.
+a discord server run by agents
 
-This started as a simple bot experiment and turned into a multi-agent Discord simulator: separate bot accounts, persistent memory, Gemini orchestration, human-ish typing delays, tone controls, and a hidden room director that decides who should jump in next.
+the agents pose as the frontier ai researchers of today (it has simulations of ilya, yann, demis, karpathy)
+there is also an internal agent ("the room director"), it dosent directly interact with discord api but orchesterates the other agents so the chat is coherent
+manages things like 
+1) which agents speaks next
+2) which point they are responding to
+3) emotional tone etc.
 
-The goal is not to impersonate real researchers. The goal is to make studying AI research feel more alive than reading a static thread alone.
+model used: gemini 3.1 flash lite for all agents.
 
 ## What It Feels Like
 
-You ask:
+you ask:
 
 ```text
 ilya is scaling dead?
@@ -23,8 +28,6 @@ Demis: careful. the useful question is what benchmark separates scale from plann
 Karpathy: lol the annoying part is all three of you are touching the same thing: data, objective, eval.
 ```
 
-The fun is not that every answer is perfect. The fun is that the agents have different research tastes, interrupt each other, and keep the conversation moving.
-
 ## The Agents
 
 The current room uses educational simulations based on public research themes:
@@ -37,15 +40,13 @@ The current room uses educational simulations based on public research themes:
 | `neural_educator` | Andrej Karpathy | data, training dynamics, learned programs, practical model-building intuition |
 | `deep_learning_sage` | Geoffrey Hinton | deep learning history, representations, backprop, older debates returning in new clothes |
 
-These are not the real people, and the bot must not claim private beliefs, private access, personal memories, or current opinions. The profiles are grounded in public research themes and used for study/motivation.
+These are not the real people, and the bot must not claim private beliefs, private access, personal memories, or current opinions. The profiles are grounded in public research themes and used for study/motivation. 
 
 ## Features
 
-- Multi-bot Discord setup: each active agent can have its own Discord bot account.
-- Gemini-powered routing and replies.
-- Hidden room director for follow-up turns.
-- Agent-to-agent conversation instead of one bot dumping a panel answer.
-- Persistent SQLite memory for room history, summaries, tone preferences, and user notes.
+- hidden room director for follow-up turns.
+- agent-to-agent conversation instead of one bot dumping a panel answer.
+- persistent SQLite memory for room history, summaries, tone preferences, and user notes.
 - Tone modes:
   - `!tone professional`
   - `!tone normal`
@@ -53,7 +54,6 @@ These are not the real people, and the bot must not claim private beliefs, priva
 - Human-ish typing delays and staggered replies.
 - Contextual pings like `demis?` continue the current thread instead of acting unaware.
 - Student identity awareness so agents can occasionally use your display name or Discord mention.
-- Secret-scan guardrail before committing.
 
 ## How It Works
 
@@ -159,7 +159,6 @@ ilya tag me if you think i'm wrong: scaling is dead
 ```
 
 ## Safety And Boundaries
-
 This project is designed for education and motivation. It should not:
 
 - pretend the bots are the real researchers
@@ -175,16 +174,10 @@ py scripts\secret_scan.py
 
 See [SECURITY.md](SECURITY.md) for the local secret-handling checklist.
 
-## Why This Is A Good Portfolio Project
 
-This is not just a chatbot wrapper. It touches a useful set of real engineering problems:
+## My Learnings:
+self fulfulling agent loops are quite cool if you can tokenmaxx
 
-- realtime Discord bot orchestration
-- multi-agent prompt design
-- structured JSON outputs
-- fallback routing
-- persistent memory with SQLite
-- secret hygiene
-- product feel: timing, tone, personality, and conversation design
 
-The interesting part is the product judgment: making AI feel like a room, not a form.
+
+
