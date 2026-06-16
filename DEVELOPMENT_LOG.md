@@ -1,0 +1,98 @@
+# Development Log
+
+## 2026-06-12
+
+- Moved from a single Discord bot roleplaying all agents to a multi-bot simulator.
+- Disabled the old `karpathysbasement` single-bot path; `main.py` now launches `multi_bot.py`.
+- Added real bot-token routing through ignored `bot_tokens.json`.
+- Added active real agents:
+  - `systems_strategist` as Demis Hassabis
+  - `scaling_mystic` as Ilya Sutskever
+- Added Gemini orchestration with JSON replies and fallback behavior.
+- Added per-channel transcripts so agents can converse with each other across short follow-up rounds.
+- Added tone settings:
+  - `!tone professional`
+  - `!tone normal`
+  - `!tone strict`
+  - `!tone ragebait` alias for strict
+- Added single-instance lock via `.bot.lock` to prevent duplicate bot processes from causing repeated replies.
+- Added reply cleanup:
+  - one line per agent message
+  - no duplicate agent replies per beat
+  - removes assistant-like phrases such as "I am here"
+  - lowercases sentence starts when safe for a more casual Discord feel
+- Tuned typing/reaction delay to feel faster and more human.
+- Changed reply sending from sequential to concurrent per-agent tasks, allowing overlapping typing indicators and less mechanical timing.
+- Added jittered typing delays and longer pauses before follow-up rounds so the room reads more like people thinking.
+- Rewrote `agents.md` with stronger public research-view anchors for Yann, Demis, Karpathy, Ilya, and Hinton.
+- Added stronger per-agent voice fingerprints to reduce clustered/generic replies.
+- Added prompt-level anti-clustering rules so agents avoid the same opening shape and do not all ask questions.
+- Fixed direct text targeting so `ilya`, `@ilya`, `demis`, etc. route to only the addressed active agent.
+- Added hot-topic debate routing: scaling, world models, planning/evals, and training/code prompts pull in relevant agents even when one agent is addressed.
+- Changed the room flow from panel-style first replies to group-chat turn-taking:
+  - one strongest/relevant first speaker answers the user
+  - follow-up beats let other agents react to the latest message and each other
+  - each continuation beat is capped at one agent so the thread unfolds sequentially
+- Verified the group-chat flow with a live Gemini smoke test:
+  - first beat returned one agent
+  - second beat returned one different agent reacting to the first
+- Tuned debate behavior so agents defend their research worldview before proposing implementation steps.
+- Reduced Karpathy's tendency to jump into low-level toy code; he now argues from data, training dynamics, learned programs, and engineering taste in broad debates.
+- Verified a scaling/world-model live Gemini smoke test where Yann, Ilya, Demis, and Karpathy each defended distinct ideological positions.
+- Added stronger human texture rules:
+  - agents usually react emotionally before explaining
+  - light teasing and defensiveness about ideas are allowed
+  - sterile definition-style replies are discouraged
+  - Karpathy/Yann world-model smoke test now produces more natural back-and-forth
+- Added a hidden director pass for follow-up turns:
+  - first Gemini call decides whether another agent should speak
+  - director picks the next agent, intent, topic lock, required point, and derailments to avoid
+  - second Gemini call writes the chosen agent's visible Discord message inside that plan
+- Added contextual second-person routing so "your view" after an agent speaks targets that last agent instead of opening the floor.
+- Verified the chess case:
+  - continuation stays on chess/search/planning instead of drifting into generic token/loss-curve slogans
+  - second-person follow-up routing correctly infers Demis after Demis speaks
+- Added recent transcript awareness to direct/first-speaker replies, not just follow-up director turns.
+- Tightened contextual pings:
+  - name-only prompts like "demis?" now continue the prior technical thread
+  - the reply must explicitly reference the previous agent or their claim when context exists
+  - generic "yeah?" / "still here" style responses are stripped
+- Verified the multimodality case where Demis responds to Ilya's point instead of acting unaware.
+- Added student identity awareness:
+  - prompts now receive the student's display name, username, and Discord mention
+  - agents may occasionally use the student's name or tag when it feels natural
+  - explicit "tag/ping/mention me" requests deterministically insert the Discord mention once
+- Verified explicit mention behavior with a live Gemini smoke test.
+- Added pre-commit security guardrails:
+  - expanded `.gitignore` for local tokens, env files, SQLite files, logs, private keys, and `pfps/`
+  - added `scripts/secret_scan.py` for redacted secret scanning
+  - added `SECURITY.md` with local secret-handling notes
+- Verified the scanner reports only allowed local secrets in `bot_tokens.json` and no source/doc leaks.
+- Updated personality profiles:
+  - Demis: humble professional systems strategist
+  - LeCun: rash, pragmatic, blunt world-model provocateur
+  - Ilya: mystic/crux-focused scaling and generalization voice
+  - Karpathy: friendly next-door builder-teacher
+- Added SQLite persistence through `memory_store.py`.
+- Persisted per-channel tone preferences.
+- Persisted per-channel message history for restored room context after restarts.
+- Added `!memory clear` / `!memory reset` to clear a channel's stored transcript.
+- Added long-term user memories with `!remember <fact>`.
+- Added `!memory` to inspect room summary and saved user memories.
+- Added `!memory forget me` / `!memory clear me` to clear a user's saved memories.
+- Added `!summary` to show the current channel summary.
+- Added automatic rolling room summaries every 12 stored messages.
+- Gemini prompts now receive persistent room memory and student memories when relevant.
+
+## Current State
+
+- The simulator is designed around Discord as the live surface.
+- Gemini decides which active agents respond.
+- Agent-to-agent continuation is bounded by `MAX_AGENT_CHAT_ROUNDS`.
+- The room now stores recent message history and tone settings in local SQLite.
+- Agent prompts now include durable context from room summaries and user memories.
+
+## Open Questions
+
+- Whether to add more real Discord bot tokens for Yann, Karpathy, and Hinton.
+- Whether to add admin commands for clearing memory, pausing agent follow-ups, or changing chat-round depth.
