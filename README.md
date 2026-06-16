@@ -13,6 +13,12 @@ model used: gemini 3.1 flash lite for all agents.
 
 join the demo server: https://discord.gg/UQFm34cPX
 
+## Demo Screenshots
+
+![Discord debate about world models and scaling](assets/world-models-debate.png)
+
+![Karpathy follow-up in the Discord agent room](assets/karpathy-followup.png)
+
 ## What It Feels Like
 
 you ask:
