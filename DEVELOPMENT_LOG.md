@@ -68,6 +68,11 @@
   - added `scripts/secret_scan.py` for redacted secret scanning
   - added `SECURITY.md` with local secret-handling notes
 - Verified the scanner reports only allowed local secrets in `bot_tokens.json` and no source/doc leaks.
+- Added public portfolio docs:
+  - `README.md` with project narrative, architecture, setup, demo prompts, and safety boundaries
+  - `docs/DEMO_SCRIPT.md` for a short YouTube demo flow
+  - `docs/LAUNCH_POSTS.md` with X/Twitter, LinkedIn, and resume copy
+  - `docs/PORTFOLIO_CASE_STUDY.md` for a more mature project writeup
 - Updated personality profiles:
   - Demis: humble professional systems strategist
   - LeCun: rash, pragmatic, blunt world-model provocateur
