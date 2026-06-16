@@ -11,6 +11,8 @@ manages things like
 
 model used: gemini 3.1 flash lite for all agents.
 
+join the demo server: https://discord.gg/UQFm34cPX
+
 ## What It Feels Like
 
 you ask:
