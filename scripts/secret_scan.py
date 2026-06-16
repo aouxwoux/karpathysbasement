@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import re
+import shutil
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+GIT_COMMAND = shutil.which("git") or r"C:\Program Files\Git\cmd\git.exe"
 
 SKIP_DIRS = {
     ".git",
@@ -136,6 +139,67 @@ def scan_files() -> list[Finding]:
     return findings
 
 
+def git_exists() -> bool:
+    return (ROOT / ".git").exists()
+
+
+def git(*args: str, binary: bool = False) -> str | bytes:
+    output = subprocess.check_output(
+        [GIT_COMMAND, *args],
+        cwd=ROOT,
+        stderr=subprocess.DEVNULL,
+    )
+
+    if binary:
+        return output
+
+    return output.decode("utf-8", errors="replace")
+
+
+def scan_git_history() -> list[Finding]:
+    if not git_exists():
+        return []
+
+    findings: list[Finding] = []
+    commits = [
+        line.strip()
+        for line in str(git("rev-list", "--all")).splitlines()
+        if line.strip()
+    ]
+
+    for commit in commits:
+        file_names = [
+            line.strip()
+            for line in str(git("ls-tree", "-r", "--name-only", commit)).splitlines()
+            if line.strip()
+        ]
+
+        for file_name in file_names:
+            path = Path(file_name)
+            if path.suffix.lower() in SKIP_SUFFIXES:
+                continue
+
+            try:
+                raw_content = git("show", f"{commit}:{file_name}", binary=True)
+            except subprocess.CalledProcessError:
+                continue
+
+            text = bytes(raw_content).decode("utf-8", errors="ignore")
+            for line_number, line in enumerate(text.splitlines(), start=1):
+                for name, pattern in SECRET_PATTERNS.items():
+                    if pattern.search(line):
+                        findings.append(
+                            Finding(
+                                path=Path(f"{commit[:12]}:{file_name}"),
+                                line=line_number,
+                                pattern=name,
+                                allowed=False,
+                            )
+                        )
+
+    return findings
+
+
 def print_findings(findings: list[Finding]) -> None:
     blocking = [finding for finding in findings if not finding.allowed]
     allowed = [finding for finding in findings if finding.allowed]
@@ -159,6 +223,8 @@ def main() -> int:
     gitignore_entries = load_gitignore_entries()
     missing_entries = sorted(REQUIRED_GITIGNORE_ENTRIES - gitignore_entries)
     findings = scan_files()
+    history_findings = scan_git_history()
+    findings.extend(history_findings)
     blocking_findings = [finding for finding in findings if not finding.allowed]
 
     if missing_entries:

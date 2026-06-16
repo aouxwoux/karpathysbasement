@@ -8,6 +8,8 @@ Before committing or sharing the project, run:
 py scripts\secret_scan.py
 ```
 
+The scanner checks the working tree and reachable Git history. It prints only file names, line numbers, and pattern names; it should not print secret values.
+
 Local-only files that must not be committed:
 
 - `bot_tokens.json`
